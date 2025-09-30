@@ -215,6 +215,9 @@ func createOutputDatabase(path string) (*gorm.DB, error) {
 		&models.NetworkLog{},
 		&models.ConsoleLog{},
 		&models.Cookie{},
+		&models.ScanSession{},
+		&models.IPPort{},
+		&models.IPInfo{},
 	); err != nil {
 		return nil, err
 	}

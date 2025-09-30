@@ -125,15 +125,17 @@ func (nr *NmapReader) Read(ch chan<- string) error {
 
 // urlsFor returns URLs for a scanning candidate.
 // For candidates with no protocol, (and none of http/https is ignored), the
-// method will return two urls
+// method will return appropriate URLs based on protocol/port combinations
 func (nr *NmapReader) urlsFor(target string, port int) []string {
 	var urls []string
 
-	if !nr.Options.NoHTTP {
+	// Add HTTP URL only for non-443 ports (unless NoHTTP is set)
+	if !nr.Options.NoHTTP && port != 443 {
 		urls = append(urls, fmt.Sprintf("http://%s:%d", target, port))
 	}
 
-	if !nr.Options.NoHTTPS {
+	// Add HTTPS URL only for non-80 ports (unless NoHTTPS is set)
+	if !nr.Options.NoHTTPS && port != 80 {
 		urls = append(urls, fmt.Sprintf("https://%s:%d", target, port))
 	}
 

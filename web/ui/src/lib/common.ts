@@ -29,4 +29,33 @@ const getStatusColor = (code: number) => {
   return "bg-gray-500 text-white";
 };
 
-export { copyToClipboard, getIconUrl, getStatusColor };
+// Extract IP address from a detail object
+// First check if ip_address is available from the API response
+// If not, try to extract from URL if it's a direct IP
+const extractIPAddress = (detail: apitypes.detail): string | null => {
+  // First, check if the API response includes the ip_address field
+  if (detail.ip_address && detail.ip_address.trim() !== '') {
+    return detail.ip_address.trim();
+  }
+
+  // If not available from API, try to extract from URL if it's a direct IP
+  try {
+    const url = new URL(detail.final_url || detail.url);
+    const hostname = url.hostname;
+    
+    // Check if hostname is an IPv4 address using regex
+    const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+    // Check if hostname is an IPv6 address (simplified check)
+    const ipv6Regex = /^([0-9a-f]{0,4}:){2,7}[0-9a-f]{0,4}$/i;
+    
+    if (ipv4Regex.test(hostname) || ipv6Regex.test(hostname)) {
+      return hostname;
+    }
+  } catch (error) {
+    // Invalid URL, ignore
+  }
+
+  return null;
+};
+
+export { copyToClipboard, getIconUrl, getStatusColor, extractIPAddress };

@@ -203,6 +203,11 @@ func (run *Gorod) Witness(target string, runner *runner.Runner) (*models.Result,
 		// network related events
 		// write a request to the network request map
 		func(e *proto.NetworkRequestWillBeSent) bool {
+			// Skip data URLs (base64 images, etc.) to prevent database bloat
+			if strings.HasPrefix(e.Request.URL, "data:image") {
+				return dismissEvents
+			}
+
 			// note the request id for the first request. well get back
 			// to this afterwards to extract information about the probe.
 			if first == nil {
@@ -227,6 +232,7 @@ func (run *Gorod) Witness(target string, runner *runner.Runner) (*models.Result,
 				if first != nil && first.RequestID == e.RequestID {
 					resultMutex.Lock()
 					result.FinalURL = e.Response.URL
+					result.IPAddress = e.Response.RemoteIPAddress
 					result.ResponseCode = e.Response.Status
 					result.ResponseReason = e.Response.StatusText
 					result.Protocol = e.Response.Protocol

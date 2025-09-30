@@ -1,18 +1,33 @@
-import { gallery, list, statistics, wappalyzer, detail, searchresult, technologylist } from "@/lib/api/types";
+import { gallery, list, statistics, wappalyzer, detail, searchresult, technologylist, IPInfoResponse } from "@/lib/api/types";
+
+// Dynamically determine the base API path from the current URL
+function getApiBasePath(): string {
+  const pathname = window.location.pathname;
+  // If we're at /project/something/, use that as base for API calls
+  const projectMatch = pathname.match(/^(\/project\/[^\/]+)\//);
+  if (projectMatch) {
+    return projectMatch[1] + `/api`;
+  }
+  // Otherwise use root
+  return `/api`;
+}
+
+// Dynamically determine the screenshots base path
+function getScreenshotsBasePath(): string {
+  const pathname = window.location.pathname;
+  // If we're at /project/something/, use that as base for screenshots
+  const projectMatch = pathname.match(/^(\/project\/[^\/]+)\//);
+  if (projectMatch) {
+    return projectMatch[1] + `/screenshots`;
+  }
+  // Otherwise use root
+  return `/screenshots`;
+}
 
 const endpoints = {
-  // api base path
-  base: {
-    path: import.meta.env.VITE_GOWITNESS_API_BASE_URL
-      ? import.meta.env.VITE_GOWITNESS_API_BASE_URL + `/api`
-      : `/api`,
-    returnas: [] // n/a
-  },
-  // screenshot path
+  // screenshot path (kept for backward compatibility)
   screenshot: {
-    path: import.meta.env.VITE_GOWITNESS_API_BASE_URL
-      ? import.meta.env.VITE_GOWITNESS_API_BASE_URL + `/screenshots`
-      : `/screenshots`,
+    path: `/screenshots`,
     returnas: [] // n/a
   },
 
@@ -40,6 +55,10 @@ const endpoints = {
   technology: {
     path: `/results/technology`,
     returnas: {} as technologylist
+  },
+  ipinfo: {
+    path: `/ip/:ip`,
+    returnas: {} as IPInfoResponse
   },
 
   // post endpoints
@@ -109,7 +128,12 @@ const get = async <K extends keyof Endpoints>(
   const [pathWithParams, remainingParams] = replacePathParams(endpoint.path, params);
   const queryString = remainingParams ? serializeParams(remainingParams) : '';
 
-  const res = await fetch(`${endpoints.base.path}${pathWithParams}${queryString}`);
+  // Dynamically determine the base API path for each request
+  const basePath = import.meta.env.VITE_GOWITNESS_API_BASE_URL 
+    ? import.meta.env.VITE_GOWITNESS_API_BASE_URL + `/api`
+    : getApiBasePath();
+
+  const res = await fetch(`${basePath}${pathWithParams}${queryString}`);
 
   if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
 
@@ -123,7 +147,13 @@ const post = async <K extends keyof Endpoints>(
 ): Promise<EndpointReturnType<K>> => {
 
   const endpoint = endpoints[endpointKey];
-  const res = await fetch(`${endpoints.base.path}${endpoint.path}`, {
+  
+  // Dynamically determine the base API path for each request
+  const basePath = import.meta.env.VITE_GOWITNESS_API_BASE_URL 
+    ? import.meta.env.VITE_GOWITNESS_API_BASE_URL + `/api`
+    : getApiBasePath();
+
+  const res = await fetch(`${basePath}${endpoint.path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -134,4 +164,12 @@ const post = async <K extends keyof Endpoints>(
   return await res.json() as EndpointReturnType<K>;
 };
 
-export { endpoints, get, post };
+// Export the screenshot path function for use in components
+const getScreenshotUrl = (filename: string): string => {
+  const basePath = import.meta.env.VITE_GOWITNESS_API_BASE_URL 
+    ? import.meta.env.VITE_GOWITNESS_API_BASE_URL + `/screenshots`
+    : getScreenshotsBasePath();
+  return `${basePath}/${filename}`;
+};
+
+export { endpoints, get, post, getScreenshotUrl };

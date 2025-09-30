@@ -152,6 +152,14 @@ func (fr *FileReader) urlsFor(candidate string, ports []int) []string {
 	// generate the urls
 	for _, scheme := range schemes {
 		for _, port := range targetPorts {
+			// Skip invalid protocol/port combinations
+			if scheme == "http" && port == 443 {
+				continue // HTTP should not use port 443 (reserved for HTTPS)
+			}
+			if scheme == "https" && port == 80 {
+				continue // HTTPS should not use port 80 (reserved for HTTP)
+			}
+
 			host := hostname
 
 			if port != 0 {

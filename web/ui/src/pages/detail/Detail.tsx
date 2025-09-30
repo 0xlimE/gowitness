@@ -4,14 +4,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ExternalLink, ChevronLeft, ChevronRight, Code, ClockIcon, Trash2Icon, DownloadIcon, ImagesIcon, ZoomInIcon, CopyIcon } from 'lucide-react';
+import { ExternalLink, ChevronLeft, ChevronRight, Code, ClockIcon, Trash2Icon, DownloadIcon, ImagesIcon, ZoomInIcon, CopyIcon, ServerIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog";
 import { WideSkeleton } from '@/components/loading';
 import { Form, Link, useNavigate, useParams } from 'react-router-dom';
 import { format, formatDistanceToNow } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { copyToClipboard, getIconUrl, getStatusColor } from '@/lib/common';
+import { copyToClipboard, getIconUrl, getStatusColor, extractIPAddress } from '@/lib/common';
 import * as api from "@/lib/api/api";
 import * as apitypes from "@/lib/api/types";
 import { getData } from './data';
@@ -230,6 +230,20 @@ const ScreenshotDetailPage = () => {
           <div>
             <h2 className="text-xl font-bold">{detail.title}</h2>
             <p className="text-sm text-muted-foreground">{detail.url}</p>
+            {(() => {
+              const ipAddress = extractIPAddress(detail);
+              return ipAddress ? (
+                <p className="text-sm text-muted-foreground">
+                  <ServerIcon className="h-3 w-3 inline mr-1" />
+                  IP: <Link 
+                    to={`/ip/${encodeURIComponent(ipAddress)}`} 
+                    className="text-blue-500 hover:underline font-mono"
+                  >
+                    {ipAddress}
+                  </Link>
+                </p>
+              ) : null;
+            })()}
           </div>
           <Button onClick={() => window.open(detail.url, '_blank')}>
             <ExternalLink className="mr-2 h-4 w-4" />

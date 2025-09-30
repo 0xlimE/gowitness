@@ -218,6 +218,11 @@ func (run *Chromedp) Witness(target string, thisRunner *runner.Runner) (*models.
 		// network related events
 		// write a request to the network request map
 		case *network.EventRequestWillBeSent:
+			// Skip data URLs (base64 images, etc.) to prevent database bloat
+			if strings.HasPrefix(e.Request.URL, "data:image") {
+				break
+			}
+
 			if first == nil {
 				first = e
 			}
@@ -231,6 +236,7 @@ func (run *Chromedp) Witness(target string, thisRunner *runner.Runner) (*models.
 				if first != nil && first.RequestID == e.RequestID {
 					resultMutex.Lock()
 					result.FinalURL = e.Response.URL
+					result.IPAddress = e.Response.RemoteIPAddress
 					result.ResponseCode = int(e.Response.Status)
 					result.ResponseReason = e.Response.StatusText
 					result.Protocol = e.Response.Protocol

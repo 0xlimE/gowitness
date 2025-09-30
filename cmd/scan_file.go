@@ -11,6 +11,7 @@ import (
 )
 
 var fileCmdOptions = &readers.FileReaderOptions{}
+var fileProjectName string // Project name for status updates
 var fileCmd = &cobra.Command{
 	Use:   "file",
 	Short: "Scan targets sourced from a file or stdin",
@@ -56,17 +57,32 @@ flags.`)),
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Debug("starting file scanning", "file", fileCmdOptions.Source)
 
+		// Update project status to running
+		updateFileProjectStatus(fileProjectName, "Running - (Screenshotting)")
+
 		reader := readers.NewFileReader(fileCmdOptions)
 		go func() {
 			if err := reader.Read(scanRunner.Targets); err != nil {
 				log.Error("error in reader.Read", "err", err)
+				updateFileProjectStatus(fileProjectName, "Error - (Screenshotting failed)")
 				return
 			}
 		}()
 
 		scanRunner.Run()
 		scanRunner.Close()
+
+		// Update status to complete
+		updateFileProjectStatus(fileProjectName, "Complete - (Screenshotting)")
 	},
+}
+
+// updateFileProjectStatus logs project status (admin panel removed)
+func updateFileProjectStatus(projectName, status string) {
+	if projectName == "" {
+		return
+	}
+	log.Debug("project status update", "project", projectName, "status", status)
 }
 
 func init() {
@@ -79,4 +95,5 @@ func init() {
 	fileCmd.Flags().BoolVar(&fileCmdOptions.PortsSmall, "ports-small", false, "Include a small ports list when scanning targets")
 	fileCmd.Flags().BoolVar(&fileCmdOptions.PortsMedium, "ports-medium", false, "Include a medium ports list when scanning targets")
 	fileCmd.Flags().BoolVar(&fileCmdOptions.PortsLarge, "ports-large", false, "Include a large ports list when scanning targets")
+	fileCmd.Flags().StringVar(&fileProjectName, "project", "", "Project name for status updates (optional)")
 }

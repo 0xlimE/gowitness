@@ -30,10 +30,36 @@ The main goal of `gowitness` is to take website screenshots (**and do that well!
 
 ## quick start
 
+### Prerequisites
+
+Before installing gowitness, ensure you have the following dependencies:
+
+1. **libpcap library** (required for naabu portscanner integration):
+   - **Linux**: `sudo apt install -y libpcap-dev`
+   - **macOS**: `brew install libpcap`
+
+2. **naabu portscanner** (for enhanced port scanning capabilities):
+   ```bash
+   go install -v github.com/projectdiscovery/naabu/v2/cmd/naabu@latest
+   ```
+
+### Installation
+
 There are a few ways to get gowitness, the simplest (assuming your `$GOBIN` path is in your shell `$PATH`) will be to use `go install`:
 
 ```text
 go install github.com/sensepost/gowitness@latest
+```
+
+**Or build from source with all dependencies:**
+
+```bash
+# Clone the repository
+git clone https://github.com/sensepost/gowitness.git
+cd gowitness
+
+# Install prerequisites and build
+make build-with-deps
 ```
 
 Otherwise, grab a platform specific release binary or compile from source. Then, scan your first target writing the results to a SQLite database and the screenshot to `./screenshots` with:

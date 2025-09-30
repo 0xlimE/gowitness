@@ -21,13 +21,19 @@ func SpaHandler() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		f, err := spaFS.Open(strings.TrimPrefix(path.Clean(r.URL.Path), "/"))
+		path := strings.TrimPrefix(path.Clean(r.URL.Path), "/")
+
+		f, err := spaFS.Open(path)
 		if err == nil {
 			defer f.Close()
 		}
+
 		if os.IsNotExist(err) {
+			// For any path that doesn't exist, serve the index.html file
+			// This handles SPA routing where /screenshot/1, /overview, etc. should all serve index.html
 			r.URL.Path = "/"
 		}
+
 		http.FileServer(http.FS(spaFS)).ServeHTTP(w, r)
 	}
 }

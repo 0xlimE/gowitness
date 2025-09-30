@@ -22,9 +22,7 @@ func TestUrlsFor(t *testing.T) {
 			ports:     []int{80, 443, 8443},
 			want: []string{
 				"http://192.168.1.1:80",
-				"http://192.168.1.1:443",
 				"http://192.168.1.1:8443",
-				"https://192.168.1.1:80",
 				"https://192.168.1.1:443",
 				"https://192.168.1.1:8443",
 			},
@@ -60,7 +58,6 @@ func TestUrlsFor(t *testing.T) {
 			candidate: "https://192.168.1.1",
 			ports:     []int{80, 443, 8443},
 			want: []string{
-				"https://192.168.1.1:80",
 				"https://192.168.1.1:443",
 				"https://192.168.1.1:8443",
 			},
@@ -71,9 +68,7 @@ func TestUrlsFor(t *testing.T) {
 			ports:     []int{80, 443, 8443},
 			want: []string{
 				"http://192.168.1.1:80/path",
-				"http://192.168.1.1:443/path",
 				"http://192.168.1.1:8443/path",
-				"https://192.168.1.1:80/path",
 				"https://192.168.1.1:443/path",
 				"https://192.168.1.1:8443/path",
 			},

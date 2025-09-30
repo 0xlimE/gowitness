@@ -135,11 +135,13 @@ func (nr *NessusReader) urlsFor(target string, ports []int) []string {
 	var urls []string
 
 	for _, port := range ports {
-		if !nr.Options.NoHTTP {
+		// Add HTTP URL only for non-443 ports (unless NoHTTP is set)
+		if !nr.Options.NoHTTP && port != 443 {
 			urls = append(urls, fmt.Sprintf("http://%s:%d", target, port))
 		}
 
-		if !nr.Options.NoHTTPS {
+		// Add HTTPS URL only for non-80 ports (unless NoHTTPS is set)
+		if !nr.Options.NoHTTPS && port != 80 {
 			urls = append(urls, fmt.Sprintf("https://%s:%d", target, port))
 		}
 	}

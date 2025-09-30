@@ -3,9 +3,11 @@ package database
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/glebarez/sqlite"
 	"github.com/sensepost/gowitness/pkg/models"
@@ -29,7 +31,23 @@ func Connection(uri string, shouldExist, debug bool) (*gorm.DB, error) {
 	if debug {
 		config.Logger = logger.Default.LogMode(logger.Info)
 	} else {
-		config.Logger = logger.Default.LogMode(logger.Error)
+		// Create a file logger for database operations
+		logFile, err := os.OpenFile("gowitness-db.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		if err != nil {
+			// If we can't create the log file, just use silent mode
+			config.Logger = logger.Default.LogMode(logger.Silent)
+		} else {
+			fileLogger := log.New(logFile, "", log.LstdFlags)
+			config.Logger = logger.New(
+				fileLogger,
+				logger.Config{
+					SlowThreshold:             time.Second,
+					LogLevel:                  logger.Error, // Only log errors and warnings to file
+					IgnoreRecordNotFoundError: true,         // Don't log "record not found" as errors
+					Colorful:                  false,        // No colors in log file
+				},
+			)
+		}
 	}
 
 	switch db.Scheme {
@@ -74,6 +92,9 @@ func Connection(uri string, shouldExist, debug bool) (*gorm.DB, error) {
 		&models.NetworkLog{},
 		&models.ConsoleLog{},
 		&models.Cookie{},
+		&models.ScanSession{},
+		&models.IPPort{},
+		&models.IPInfo{},
 	); err != nil {
 		return nil, err
 	}

@@ -1,0 +1,5 @@
+testdomain.com
+www.testdomain.com
+mail.testdomain.com
+email.testdomain.com
+smtp.testdomain.com

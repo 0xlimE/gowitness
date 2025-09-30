@@ -63,11 +63,13 @@ func (cr *CidrReader) candidates() ([]string, error) {
 		for _, port := range ports {
 			partial := fmt.Sprintf("%s:%d", ip, port)
 
-			if !cr.Options.NoHTTP {
+			// Add HTTP URL only for non-443 ports (unless NoHTTP is set)
+			if !cr.Options.NoHTTP && port != 443 {
 				candidates = append(candidates, fmt.Sprintf("http://%s", partial))
 			}
 
-			if !cr.Options.NoHTTPS {
+			// Add HTTPS URL only for non-80 ports (unless NoHTTPS is set)
+			if !cr.Options.NoHTTPS && port != 80 {
 				candidates = append(candidates, fmt.Sprintf("https://%s", partial))
 			}
 		}

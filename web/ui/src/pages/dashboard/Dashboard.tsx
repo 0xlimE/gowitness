@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { WideSkeleton } from "@/components/loading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DatabaseIcon, FileTextIcon, HardDriveIcon, NetworkIcon, TerminalIcon } from "lucide-react";
+import { GlobeIcon, LayersIcon, ServerIcon, BuildingIcon } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import { DomainExplorer } from "@/components/domain-explorer";
+import { IPExplorer } from "@/components/ip-explorer";
 import * as apitypes from "@/lib/api/types";
 import { getData } from "./data";
 
@@ -15,6 +17,17 @@ const chartConfig = {
   code: {
     label: "HTTP Status Code",
     color: "hsl(var(--chart-1))",
+  },
+} satisfies ChartConfig;
+
+const domainChartConfig = {
+  count: {
+    label: "Count",
+    color: "hsl(var(--chart-3))",
+  },
+  domain: {
+    label: "Domain",
+    color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
@@ -42,61 +55,124 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+      <h1 className="text-3xl font-bold tracking-tight">
+        {stats?.target_info ? `${stats.target_info.company_name} Assessment` : "Dashboard"}
+      </h1>
+      
+      {/* Target Information Card */}
+      {stats?.target_info && (
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BuildingIcon className="h-5 w-5" />
+              Target Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-3">
+            <div>
+              <div className="text-sm font-medium text-muted-foreground">Company</div>
+              <div className="text-lg font-semibold">{stats.target_info.company_name}</div>
+            </div>
+            <div>
+              <div className="text-sm font-medium text-muted-foreground">Main Domain</div>
+              <div className="text-lg font-semibold">{stats.target_info.main_domain}</div>
+            </div>
+            <div>
+              <div className="text-sm font-medium text-muted-foreground">Scan Started</div>
+              <div className="text-lg font-semibold">{new Date(stats.target_info.scan_start_time).toLocaleDateString()}</div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <StatCard
-          title="Database Size"
-          value={`${stats ? (stats.dbsize / (1024 * 1024)).toFixed(1) : 0} MB`}
-          icon={DatabaseIcon}
+          title="Unique Apex Domains"
+          value={stats?.domain_stats ? stats.domain_stats.unique_apex_domains : 0}
+          icon={GlobeIcon}
         />
         <StatCard
-          title="Total Results"
-          value={stats ? stats.results : 0}
-          icon={FileTextIcon}
+          title="Total Subdomains"
+          value={stats?.domain_stats ? stats.domain_stats.total_subdomains : 0}
+          icon={LayersIcon}
         />
         <StatCard
-          title="Headers"
-          value={stats ? stats.headers : 0}
-          icon={HardDriveIcon}
-        />
-        <StatCard
-          title="Network Logs"
-          value={stats ? stats.networklogs : 0}
-          icon={NetworkIcon}
-        />
-        <StatCard
-          title="Console Logs"
-          value={stats ? stats.consolelogs : 0}
-          icon={TerminalIcon}
+          title="Unique IP Addresses"
+          value={stats?.ip_stats ? stats.ip_stats.unique_ips : 0}
+          icon={ServerIcon}
         />
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>HTTP Status Code Distribution</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer config={chartConfig} className="aspect-auto h-[350px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats?.response_code_stats}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="code"
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => `${value}%`}
-                />
-                <ChartTooltip content={<ChartTooltipContent hideLabel indicator="line" />} />
-                <ChartLegend content={<ChartLegendContent />} />
-                <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </CardContent>
-      </Card>
+      
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Apex Domains by Count</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer config={domainChartConfig} className="aspect-auto h-[350px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats?.domain_stats?.apex_domains?.slice(0, 10).map(domain => ({
+                    domain: domain.domain,
+                    count: domain.count
+                  })) || []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="domain"
+                      tickLine={false}
+                      axisLine={false}
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent hideLabel indicator="line" />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>HTTP Status Code Distribution</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer config={chartConfig} className="aspect-auto h-[350px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats?.response_code_stats}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="code"
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent hideLabel indicator="line" />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="lg:col-span-1 space-y-4">
+          <DomainExplorer domains={stats?.domain_stats?.apex_domains || []} />
+          {stats?.ip_stats && (
+            <IPExplorer ipStats={stats.ip_stats} />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
