@@ -14,6 +14,7 @@ type statistics = {
 interface target_information {
   company_name: string;
   main_domain: string;
+  logo_path?: string;
   scan_start_time: string;
   scan_status: string;
   notes: string;

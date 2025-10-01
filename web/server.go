@@ -129,7 +129,7 @@ func (s *Server) renderLoginPage(w http.ResponseWriter, errorMsg string, basePat
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>gowitness - Login Required</title>
+    <title>Defend Denmark ASM - Login Required</title>
     <style>
         body {
             font-family: system-ui, -apple-system, sans-serif;
@@ -202,7 +202,7 @@ func (s *Server) renderLoginPage(w http.ResponseWriter, errorMsg string, basePat
 <body>
     <div class="login-container">
         <div class="logo">
-            <h1>gowitness</h1>
+            <h1>Defend Denmark ASM</h1>
             <p>Authentication Required</p>
         </div>
         {{if .Error}}
@@ -276,6 +276,7 @@ func (s *Server) Run() {
 			r.Get("/wappalyzer", apih.WappalyzerHandler)
 			r.Get("/security/status", apih.SecurityStatusHandler)
 			r.Get("/ip/{ip}", apih.IPInfoHandler)
+			r.Get("/logo", apih.LogoHandler)
 			r.Post("/search", apih.SearchHandler)
 			r.Post("/submit", apih.SubmitHandler)
 			r.Post("/submit/single", apih.SubmitSingleHandler)

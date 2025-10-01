@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/sensepost/gowitness/internal/ascii"
+	"github.com/sensepost/gowitness/internal/islazy"
 	"github.com/sensepost/gowitness/pkg/database"
 	"github.com/sensepost/gowitness/pkg/log"
 	"github.com/sensepost/gowitness/pkg/models"
@@ -79,6 +80,20 @@ func scanInitCmdRunE(cmd *cobra.Command, args []string) error {
 		"screenshot-dir", screenshotDir,
 		"database-path", dbPath)
 
+	// Try to fetch company logo from Clearbit
+	var logoPath string
+	log.Info("attempting to fetch company logo from Clearbit", "domain", scanInitMainDomain)
+	fetchedLogoPath, err := islazy.FetchClearbitLogo(scanInitMainDomain, targetDir)
+	if err != nil {
+		log.Warn("failed to fetch logo from Clearbit - you may need to add one manually",
+			"domain", scanInitMainDomain,
+			"error", err.Error(),
+			"location", filepath.Join(targetDir, "logo.png"))
+	} else {
+		logoPath = fetchedLogoPath
+		log.Info("successfully fetched company logo", "path", logoPath)
+	}
+
 	// Connect to target-specific database
 	dbURI := fmt.Sprintf("sqlite://%s", dbPath)
 	conn, err := database.Connection(dbURI, false, opts.Writer.DbDebug)
@@ -90,6 +105,7 @@ func scanInitCmdRunE(cmd *cobra.Command, args []string) error {
 	session := &models.ScanSession{
 		CompanyName: scanInitCompanyName,
 		MainDomain:  scanInitMainDomain,
+		LogoPath:    logoPath,
 		StartTime:   time.Now(),
 		Status:      "active",
 		Notes:       scanInitNotes,

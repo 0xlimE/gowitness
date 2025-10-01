@@ -26,6 +26,7 @@ type statisticsResponse struct {
 type targetInformation struct {
 	CompanyName   string `json:"company_name"`
 	MainDomain    string `json:"main_domain"`
+	LogoPath      string `json:"logo_path,omitempty"`
 	ScanStartTime string `json:"scan_start_time"`
 	ScanStatus    string `json:"scan_status"`
 	Notes         string `json:"notes"`
@@ -426,6 +427,7 @@ func (h *ApiHandler) getTargetInformation() (*targetInformation, error) {
 	return &targetInformation{
 		CompanyName:   session.CompanyName,
 		MainDomain:    session.MainDomain,
+		LogoPath:      session.LogoPath,
 		ScanStartTime: session.StartTime.Format("2006-01-02 15:04:05"),
 		ScanStatus:    session.Status,
 		Notes:         session.Notes,

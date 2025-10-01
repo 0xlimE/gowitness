@@ -142,6 +142,7 @@ type ScanSession struct {
 	ID          uint       `json:"id" gorm:"primarykey"`
 	CompanyName string     `json:"company_name" gorm:"index"`
 	MainDomain  string     `json:"main_domain" gorm:"index"`
+	LogoPath    string     `json:"logo_path,omitempty"` // Path to company logo file
 	StartTime   time.Time  `json:"start_time"`
 	EndTime     *time.Time `json:"end_time,omitempty"`
 	Status      string     `json:"status" gorm:"default:'active'"` // active, completed, cancelled

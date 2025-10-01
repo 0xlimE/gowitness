@@ -5,7 +5,6 @@ import { GlobeIcon, LayersIcon, ServerIcon, BuildingIcon } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { DomainExplorer } from "@/components/domain-explorer";
-import { IPExplorer } from "@/components/ip-explorer";
 import * as apitypes from "@/lib/api/types";
 import { getData } from "./data";
 
@@ -68,18 +67,43 @@ export default function DashboardPage() {
               Target Information
             </CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-3">
-            <div>
-              <div className="text-sm font-medium text-muted-foreground">Company</div>
-              <div className="text-lg font-semibold">{stats.target_info.company_name}</div>
-            </div>
-            <div>
-              <div className="text-sm font-medium text-muted-foreground">Main Domain</div>
-              <div className="text-lg font-semibold">{stats.target_info.main_domain}</div>
-            </div>
-            <div>
-              <div className="text-sm font-medium text-muted-foreground">Scan Started</div>
-              <div className="text-lg font-semibold">{new Date(stats.target_info.scan_start_time).toLocaleDateString()}</div>
+          <CardContent>
+            <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
+              {/* Info Section */}
+              <div className="flex-1 grid gap-4 md:grid-cols-3">
+                <div>
+                  <div className="text-sm font-medium text-muted-foreground">Company</div>
+                  <div className="text-lg font-semibold">{stats.target_info.company_name}</div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-muted-foreground">Main Domain</div>
+                  <div className="text-lg font-semibold">{stats.target_info.main_domain}</div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-muted-foreground">Scan Started</div>
+                  <div className="text-lg font-semibold">{new Date(stats.target_info.scan_start_time).toLocaleDateString()}</div>
+                </div>
+              </div>
+              
+              {/* Logo Section - Now on the right */}
+              <div className="flex-shrink-0">
+                <div className="w-32 h-32 bg-white rounded-lg shadow-md p-3 flex items-center justify-center">
+                  <img 
+                    src="/api/logo" 
+                    alt={`${stats.target_info.company_name} logo`}
+                    className="max-w-full max-h-full object-contain"
+                    onError={(e) => {
+                      // Replace with placeholder icon if logo fails to load
+                      const img = e.target as HTMLImageElement;
+                      img.style.display = 'none';
+                      const parent = img.parentElement;
+                      if (parent) {
+                        parent.innerHTML = '<div class="text-muted-foreground"><svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>';
+                      }
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -168,9 +192,6 @@ export default function DashboardPage() {
         
         <div className="lg:col-span-1 space-y-4">
           <DomainExplorer domains={stats?.domain_stats?.apex_domains || []} />
-          {stats?.ip_stats && (
-            <IPExplorer ipStats={stats.ip_stats} />
-          )}
         </div>
       </div>
     </div>

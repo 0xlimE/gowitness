@@ -5,7 +5,7 @@ import { Outlet } from "react-router-dom";
 
 const App = () => {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey="ui-theme">
       <div className="flex min-h-screen w-full flex-col">
         <div className="z-50 sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
           <Navigation />
@@ -15,11 +15,15 @@ const App = () => {
         </main>
         <footer className="flex justify-end p-4">
           <p className="text-sm text-muted-foreground">
-            <a href="/swagger/index.html" className="underline">
-              API Documentation
+            Defend Denmark Attack Surface Mapping Tool - &copy; 2025&nbsp;
+            <a
+              href="https://defenddenmark.dk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              Defend Denmark ApS
             </a>
-            {" "}|
-            Made with ♥ by <a href="https://github.com/leonjza" target="_blank" rel="noopener noreferrer" className="underline">@leonjza</a>
           </p>
         </footer>
       </div>
