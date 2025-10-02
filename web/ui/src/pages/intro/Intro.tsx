@@ -61,8 +61,8 @@ const Intro = () => {
       ),
     },
     {
-      title: 'Scan Results Overview',
-      description: 'What we discovered',
+      title: 'Your Digital Attack Surface',
+      description: 'What malicious actors can discover about you',
       content: (
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -97,9 +97,63 @@ const Intro = () => {
               <div className="text-sm text-muted-foreground">Unique IPs</div>
             </div>
           </div>
-          <p className="text-sm text-muted-foreground text-center mt-4">
-            These numbers represent the digital footprint discovered through passive reconnaissance.
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
+            <p className="text-sm text-amber-900 font-medium text-center">
+              <AlertTriangle className="h-4 w-4 inline mr-2" />
+              These are the same assets that malicious actors can discover about your organization
+            </p>
+          </div>
+          <p className="text-sm text-muted-foreground text-center">
+            This digital footprint represents your external-facing attack surface - the entry points available to both attackers and defenders.
           </p>
+        </div>
+      ),
+    },
+    {
+      title: 'Defining Your Testing Scope',
+      description: 'The foundation for ethical security testing',
+      content: (
+        <div className="space-y-4">
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 mb-4">
+            <h3 className="text-lg font-semibold text-center mb-3">Understanding Your Exposed Assets</h3>
+            <p className="text-muted-foreground text-center">
+              These discovered assets form the basis for determining which systems you would like 
+              our ethical hackers to test, should you choose to work with us.
+            </p>
+          </div>
+          
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
+              <div className="rounded-full bg-red-100 p-2 mt-1">
+                <AlertTriangle className="h-4 w-4 text-red-600" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium text-red-900">Attacker's Perspective</h4>
+                <p className="text-sm text-red-700">
+                  Malicious actors use the same reconnaissance techniques to identify potential targets and vulnerabilities in your infrastructure.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
+              <div className="rounded-full bg-green-100 p-2 mt-1">
+                <Check className="h-4 w-4 text-green-600" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium text-green-900">Defender's Advantage</h4>
+                <p className="text-sm text-green-700">
+                  By identifying these assets first, we can help you understand and secure your attack surface before adversaries exploit it.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+            <p className="text-sm text-blue-900 text-center">
+              <strong>Next Step:</strong> Use this information to define which assets should be included 
+              in a comprehensive security assessment by our fleet of freelance ethical hackers.
+            </p>
+          </div>
         </div>
       ),
     },
