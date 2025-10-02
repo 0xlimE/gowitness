@@ -315,7 +315,7 @@ func (h *ApiHandler) calculateDomainStatistics() (*domainStatistics, error) {
 	return &domainStatistics{
 		UniqueApexDomains: int64(len(apexDomainMap)),
 		TotalSubdomains:   totalSubdomains,
-		TotalDomains:      int64(len(results)),
+		TotalDomains:      int64(len(apexDomainMap)) + totalSubdomains,
 		ApexDomains:       apexDomains,
 	}, nil
 }
