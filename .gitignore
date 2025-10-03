@@ -15,6 +15,9 @@ build/
 # screenshots dir
 screenshots/
 
+# dist
+dist/
+
 # Test binary, build with `go test -c`
 *.test
 
